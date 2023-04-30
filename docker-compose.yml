@@ -10,7 +10,7 @@ services:
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
 
   backend:
     depends_on:
@@ -25,6 +25,17 @@ services:
       context: .
     ports:
       - "8000:80"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
 
 volumes:
   app-db-data:
