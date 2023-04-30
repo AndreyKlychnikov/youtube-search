@@ -1,0 +1,30 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - compose.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+
+  backend:
+    depends_on:
+      - db
+    env_file:
+      - compose.env
+    environment:
+      - SERVER_HOST=https://127.0.0.1
+      - POSTGRES_HOST=db
+      # Allow explicit env var override for tests
+    build:
+      context: .
+    ports:
+      - "8000:80"
+
+volumes:
+  app-db-data:
