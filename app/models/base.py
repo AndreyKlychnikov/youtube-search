@@ -1,25 +1,24 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.db.base_class import Base
 
 
 class Video(Base):
     __tablename__ = "videos"
-    id = Column(String, primary_key=True)
-    title = Column(String)
-    channel_id = Column(String)
-    video_url = Column(String)
+    id: Mapped[str] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    channel_id: Mapped[str]
 
-    subtitles = relationship("Subtitle", back_populates="video")
+    subtitles: Mapped[list["Subtitle"]] = relationship(back_populates="video")
 
 
 class Subtitle(Base):
     __tablename__ = "subtitles"
-    id = Column(Integer, primary_key=True)
-    video_id = Column(String, ForeignKey("videos.id"))
-    start_time = Column(Float)
-    end_time = Column(Float)
-    text = Column(String)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    video_id = mapped_column(ForeignKey("videos.id"))
+    start_time: Mapped[float]
+    end_time: Mapped[float]
+    text: Mapped[str]
 
     video = relationship("Video", back_populates="subtitles")
