@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 from googleapiclient.discovery import build
+from retry import retry
+from urllib3.exceptions import MaxRetryError
 from youtube_transcript_api import (
     YouTubeTranscriptApi,
     TranscriptsDisabled,
@@ -40,8 +42,9 @@ def get_channel_videos(
     ]
 
     videos = []
+    count = 0
     next_page_token = None
-    while len(videos) < max_count:
+    while count < max_count:
         playlist_items_response = (
             youtube.playlistItems()
             .list(
@@ -57,15 +60,20 @@ def get_channel_videos(
                 id=item["snippet"]["resourceId"]["videoId"],
                 channel_id=channel_id,
                 title=item["snippet"]["title"],
+                published_at=item["snippet"]["publishedAt"]
             )
             videos.append(video)
+        yield from videos
+        count += len(videos)
+        videos = []
         next_page_token = playlist_items_response.get("nextPageToken")
         if not next_page_token:
             break
 
-    return videos
+    yield from videos
 
 
+@retry((ConnectionError, MaxRetryError), delay=15, backoff=20, tries=3)
 def get_video_subtitles(video_id: str, lang: str = "en") -> list[Subtitle]:
     """
     Retrieves the subtitles for a YouTube video.

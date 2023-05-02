@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey
+from datetime import datetime
+
+from sqlalchemy import ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.db.base_class import Base
@@ -9,6 +11,7 @@ class Video(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str]
     channel_id: Mapped[str]
+    published_at: Mapped[datetime] = mapped_column(index=True, type_=TIMESTAMP(timezone=True))
 
     subtitles: Mapped[list["Subtitle"]] = relationship(back_populates="video")
 

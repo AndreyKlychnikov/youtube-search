@@ -21,6 +21,9 @@ youtube-transcript-api = "^0.6.0"
 sqlalchemy-stubs = "^0.4"
 httpx = "^0.24.0"
 asynctest = "^0.13.0"
+elasticsearch = {extras = ["async"], version = "^8.7.0"}
+retry = "^0.9.2"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.2.2"

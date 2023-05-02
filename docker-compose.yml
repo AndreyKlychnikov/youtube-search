@@ -15,12 +15,13 @@ services:
   backend:
     depends_on:
       - db
+      - elasticsearch
     env_file:
       - compose.env
     environment:
       - SERVER_HOST=https://127.0.0.1
       - POSTGRES_HOST=db
-      # Allow explicit env var override for tests
+      - ELASTICSEARCH_HOST=elasticsearch:9200
     build:
       context: .
     ports:
@@ -37,5 +38,30 @@ services:
       retries: 50
     restart: always
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "127.0.0.1:9200:9200"
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.7.0
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+
 volumes:
   app-db-data:
+  elasticsearch-data:

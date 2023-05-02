@@ -16,10 +16,6 @@ async def test_index_channels():
     subtitle_entity = MagicMock(
         video_id="test_video_id", start=0, duration=10, text="test_subtitle_text"
     )
-    subtitle_entity.video_id = "test_video_id"
-    subtitle_entity.start = 0
-    subtitle_entity.duration = 10
-    subtitle_entity.text = "test_subtitle_text"
 
     save_videos_mock = CoroutineMock()
     save_subtitles_mock = CoroutineMock()
@@ -37,3 +33,4 @@ async def test_index_channels():
     # Assert that the mocked functions were called with the expected input parameters
     save_videos_mock.assert_called_once_with([video_entity])
     save_subtitles_mock.assert_called_once_with([subtitle_entity])
+
