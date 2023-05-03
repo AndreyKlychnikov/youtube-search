@@ -1,18 +1,19 @@
 import logging
 
 import dateutil.parser
-from sqlalchemy import select, desc
+from sqlalchemy import desc, select
 from sqlalchemy.orm import load_only
 
 from app.core.config import settings
 from app.db.session import SessionLocal
-from app.models.base import Video, Subtitle
+from app.models.base import Subtitle, Video
 from app.services.elastic.subtitles import save_subtitles_to_es
 from app.services.youtube.entities import Subtitle as SubtitleEntity
 from app.services.youtube.entities import Video as VideoEntity
 from app.services.youtube.videos import (
     get_channel_id,
-    get_channel_videos, get_video_subtitles,
+    get_channel_videos,
+    get_video_subtitles,
 )
 
 
@@ -94,5 +95,5 @@ async def index_channels(
             except Exception as e:
                 await save_videos(saved_videos)
                 raise e
-
+        logging.debug("Saving videos %d", len(saved_videos))
         await save_videos(saved_videos)

@@ -7,5 +7,4 @@ router = APIRouter()
 
 @router.post("/index")
 def index(channel_urls: list[str]) -> str:
-    index_channels_task.delay(channel_urls)
-    return "ok"
+    return index_channels_task.delay(channel_urls)

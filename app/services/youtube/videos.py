@@ -4,9 +4,9 @@ from googleapiclient.discovery import build
 from retry import retry
 from urllib3.exceptions import MaxRetryError
 from youtube_transcript_api import (
-    YouTubeTranscriptApi,
-    TranscriptsDisabled,
     NoTranscriptFound,
+    TranscriptsDisabled,
+    YouTubeTranscriptApi,
 )
 
 from app.services.youtube.entities import Subtitle, Video
@@ -60,7 +60,7 @@ def get_channel_videos(
                 id=item["snippet"]["resourceId"]["videoId"],
                 channel_id=channel_id,
                 title=item["snippet"]["title"],
-                published_at=item["snippet"]["publishedAt"]
+                published_at=item["snippet"]["publishedAt"],
             )
             videos.append(video)
         yield from videos
@@ -73,7 +73,7 @@ def get_channel_videos(
     yield from videos
 
 
-@retry((ConnectionError, MaxRetryError), delay=15, backoff=20, tries=3)
+@retry((ConnectionError, MaxRetryError), delay=15, backoff=60, tries=3)
 def get_video_subtitles(video_id: str, lang: str = "en") -> list[Subtitle]:
     """
     Retrieves the subtitles for a YouTube video.
@@ -91,3 +91,7 @@ def get_video_subtitles(video_id: str, lang: str = "en") -> list[Subtitle]:
         ]
     except (TranscriptsDisabled, NoTranscriptFound):
         return []
+
+
+def get_link_to_video(video_id: str, time_code: float):
+    return f"https://youtu.be/{video_id}?t={time_code}"

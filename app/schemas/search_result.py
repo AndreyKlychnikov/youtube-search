@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class SearchResult(BaseModel):
@@ -7,3 +7,4 @@ class SearchResult(BaseModel):
     text: str
     start_time: float
     duration: float
+    url: HttpUrl
