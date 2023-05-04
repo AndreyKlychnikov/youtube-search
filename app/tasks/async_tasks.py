@@ -3,7 +3,7 @@ import logging
 
 from celery import shared_task
 
-from app.usecases.subtitles import index_channels
+from app.container import get_container
 
 
 @shared_task
@@ -13,6 +13,6 @@ def example_async_task():
 
 @shared_task
 def index_channels_task(channels_urls: list[str]):
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(index_channels(channels_urls))
+    container = get_container()
+    asyncio.run(container.search_service.index_link(channels_urls[0]))
     return "ok"

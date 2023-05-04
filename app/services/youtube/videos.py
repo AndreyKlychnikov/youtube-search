@@ -89,7 +89,11 @@ def get_video_subtitles(video_id: str, lang: str = "en") -> list[Subtitle]:
             Subtitle(**caption, language=lang, video_id=video_id)
             for caption in captions
         ]
-    except (TranscriptsDisabled, NoTranscriptFound):
+    except (
+        TranscriptsDisabled,
+        NoTranscriptFound,
+        requests.exceptions.ConnectionError,
+    ):
         return []
 
 

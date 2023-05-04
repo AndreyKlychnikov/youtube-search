@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
+from app.container import Container
 from app.core.config import settings
 from app.tasks.main import celery_app
 
@@ -27,5 +28,11 @@ celery_app.conf.beat_schedule  # noqa
 @app.get("/run-async-task")
 async def run_async_task():
     from app.tasks.async_tasks import example_async_task
+
     example_async_task.delay()
     return {"message": "Asynchronous task has been scheduled."}
+
+
+@app.on_event("shutdown")
+async def app_shutdown():
+    await Container().search_service.close()
