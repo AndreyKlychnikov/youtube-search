@@ -29,6 +29,6 @@
         chdir: "{{ code_path }}"
 
     - name: run migrate
-      shell: "docker compose exec app sh -c \"python prerun.py\""
+      shell: "docker compose exec app sh -c \"python app/prerun.py\""
       args:
         chdir: "{{ code_path }}"
