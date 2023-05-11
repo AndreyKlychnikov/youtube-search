@@ -1,0 +1,41 @@
+- hosts: "stage"
+  gather_facts: no
+  tasks:
+    - include_tasks: "tasks/docker_login.yml"
+
+    - name: create target directory
+      file:
+        path: "{{ code_path }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - include_tasks: "tasks/compose.yml"
+
+    - name: run services
+      community.docker.docker_compose:
+        project_src: "{{ code_path }}"
+        action: start
+        services: "db,redis,elasticsearch,kibana"
+
+    - name: run app
+      community.docker.docker_compose:
+        project_src: "{{ code_path }}"
+        action: up
+        detach: yes
+        service: app
+
+    - name: run migrate
+      community.docker.docker_compose:
+        project_src: "{{ code_path }}"
+        action: exec
+        service: app
+        command: sh -c "alembic upgrade head"
+
+    - name: run prerun script
+      community.docker.docker_compose:
+        project_src: "{{ code_path }}"
+        action: exec
+        service: app
+        command: sh -c "python prerun.py"

@@ -1,0 +1,13 @@
+- name: create env file
+  template:
+    src: "./templates/env.j2"
+    dest: "{{ code_path }}/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: create compose file
+  template:
+    src: "./templates/docker-compose.yml.j2"
+    dest: "{{ code_path }}/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"

@@ -6,43 +6,19 @@ services:
     volumes:
       - app-db-data:/var/lib/postgresql/data/pgdata
     env_file:
-      - compose.env
+      - .env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
-    ports:
-      - "127.0.0.1:5432:5432"
 
-  backend:
-    depends_on:
-      - db
-      - elasticsearch
-    env_file:
-      - .env
-    environment:
-      - SERVER_HOST=https://127.0.0.1
-      - POSTGRES_SERVER=db:5432
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    build:
-      context: .
-    ports:
-      - "8000:80"
-
-  celery:
-    build:
-      context: .
-    command: /bin/sh -c "celery -A app.tasks.main worker --loglevel=DEBUG"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_SERVER=db:5432
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  app:
+    image: {{ docker_image }}:{{ app_image_version }}
     depends_on:
       - db
       - redis
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:{{ app_external_port }}:80"
 
   redis:
     image: redis:latest
@@ -54,6 +30,15 @@ services:
       timeout: 30s
       retries: 50
     restart: always
+
+  celery:
+    image: {{ docker_image }}:{{ app_image_version }}
+    command: /bin/sh -c "celery -A app.tasks.main worker"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
@@ -67,17 +52,14 @@ services:
         hard: -1
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
-    ports:
-      - "127.0.0.1:9200:9200"
 
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.7.0
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    env_file:
+      - .env
     ports:
-      - "5601:5601"
-
+      - "127.0.0.1:5601:5601"
 
 volumes:
   app-db-data:
