@@ -4,7 +4,6 @@ postgres_user: postgres
 postgres_password: postgres
 postgres_db: youtube
 
-secret_key: 31673356d45290bc56a7ddd4b96cc2ba94cdc99f144d18c94222bcf7a063d8d4
 #
 backend_cors_origins: "[\"http://localhost\", \"http://localhost:3000\", \"https://localhost:3000\", \"http://{{domain}}\", \"https://{{domain}}\"]"
 server_host: http://{{domain}}

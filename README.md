@@ -111,6 +111,10 @@ The SSH private key used to authenticate with the remote server.
 
 The API key used to interact with Youtube API
 
+#### `SECRET_KEY`
+
+The FastApi secret key
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
