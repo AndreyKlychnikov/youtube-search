@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'develop'
-      - 'feature/ci'
 
 env:
   IMAGE: registry.hub.docker.com/andrewklyuchnikov/youtube-search
