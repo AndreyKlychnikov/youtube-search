@@ -1,0 +1,34 @@
+- hosts: "stage"
+  gather_facts: no
+  tasks:
+    - include: "tasks/docker_login.yml"
+
+    - name: create target directory
+      file:
+        path: "{{ code_path }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0755
+
+    - include: "tasks/compose.yml"
+
+    - name: run app
+      shell: "docker compose start db redis elasticsearch kibana"
+      args:
+        chdir: "{{ code_path }}"
+
+    - name: run app
+      shell: "docker compose up -d app"
+      args:
+        chdir: "{{ code_path }}"
+
+    - name: run migrate
+      shell: "docker compose exec app sh -c \"alembic upgrade head\""
+      args:
+        chdir: "{{ code_path }}"
+
+    - name: run migrate
+      shell: "docker compose exec app sh -c \"python app/prerun.py\""
+      args:
+        chdir: "{{ code_path }}"

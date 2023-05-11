@@ -46,9 +46,6 @@ class Settings(BaseSettings):
 
     ELASTICSEARCH_HOST: str
 
-    FIRST_SUPERUSER: str
-    FIRST_SUPERUSER_PASSWORD: str
-    USERS_OPEN_REGISTRATION: bool = False
     BASE_DIR = Path(__file__).resolve().parent.parent
 
     YOUTUBE_API_KEY: str

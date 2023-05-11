@@ -11,22 +11,21 @@ YouTube Search is a web application that allows users to search for videos on Yo
 - Docker (optional)
 
 ### Installation
+Specify env variables in `compose.env` file.
 
-1. Clone the repository
-2. Install dependencies using poetry:
-   ```
-   poetry install
-   ```
-3. Set environment variables (see Configuration section)
-4. Run the application using Uvicorn:
-   ```
-   uvicorn app.main:app --port 8000
-   ```
-   or using Docker:
-   ```
-   docker build -t youtube-search .
-   docker run -p 8000:80 youtube-search
-   ```
+For running app in docker use:
+```shell
+make compose
+```
+
+For running app in development mode use:
+```shell
+make run-local-services
+make run-local-app  # Run backend
+make run-local-celery  # Run celery
+```
+In this case database is running in a container and app is running locally.
+
 
 ### Configuration
 
@@ -35,6 +34,20 @@ The following environment variables need to be set:
 - `YOUTUBE_API_KEY`: YouTube API key
 - `ELASTICSEARCH_HOST`: Elasticsearch host URL
 - `ELASTICSEARCH_PORT`: Elasticsearch port
+
+## Makefile
+
+Makefile has four targets:
+
+- `install`: Installs project dependencies using Poetry.
+- `compose`: Starts Docker Compose in detached mode.
+- `run-local-services`: Starts services in docker container (Postgres, Redis, Elasticsearch, Kibana), applies database
+migrations and creates elasticsearch indices. It also copies the `compose.env` file to `.env` for environment variable
+configuration.
+- `run-local-app`: Starts FastApi application
+- `run-local-celery`: Starts Celery application
+- `migrate`: Runs Alembic migration to upgrade the database to the latest revision.
+
 
 ## Usage
 
@@ -69,6 +82,38 @@ Request body:
     "channel_urls": ["https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw"]
 }
 ```
+
+## CI/CD: Github Actions
+This GitHub Action template automates the build and deployment of a Docker
+image to a remote server using Ansible.
+
+### Inputs
+For proper work of actions you need to specify following secrets for a
+repository. How to specify secrets: [Github docs](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
+
+#### `DOCKERHUB_USERNAME`
+
+The username for authenticating with the Docker registry.
+
+#### `DOCKERHUB_TOKEN`
+
+The password or token for authenticating with the Docker registry.
+
+#### `SSH_HOST`
+
+The hostname or IP address of the remote server to deploy the Docker image to.
+
+#### `SSH_PRIVATE_KEY`
+
+The SSH private key used to authenticate with the remote server.
+
+#### `YOUTUBE_API_KEY`
+
+The API key used to interact with Youtube API
+
+#### `SECRET_KEY`
+
+The FastApi secret key
 
 ## License
 

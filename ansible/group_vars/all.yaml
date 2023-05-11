@@ -1,0 +1,8 @@
+project_slug: youtube-search
+docker_image: registry.hub.docker.com/andrewklyuchnikov/youtube-search
+app_external_port: 8000
+postgres_server: db:5432
+elasticsearch_host: http://elasticsearch:9200
+#
+code_path: /home/{{ansible_user}}/{{ project_slug }}
+#
