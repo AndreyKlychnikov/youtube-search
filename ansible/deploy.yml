@@ -1,7 +1,7 @@
 - hosts: "stage"
   gather_facts: no
   tasks:
-    - include_tasks: "tasks/docker_login.yml"
+    - include: "tasks/docker_login.yml"
 
     - name: create target directory
       file:
@@ -9,33 +9,26 @@
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: "0755"
+        mode: 0755
 
-    - include_tasks: "tasks/compose.yml"
-
-    - name: run services
-      community.docker.docker_compose:
-        project_src: "{{ code_path }}"
-        action: start
-        services: "db,redis,elasticsearch,kibana"
+    - include: "tasks/compose.yml"
 
     - name: run app
-      community.docker.docker_compose:
-        project_src: "{{ code_path }}"
-        action: up
-        detach: yes
-        service: app
+      shell: "docker compose start db redis elasticsearch kibana"
+      args:
+        chdir: "{{ code_path }}"
+
+    - name: run app
+      shell: "docker compose up -d app"
+      args:
+        chdir: "{{ code_path }}"
 
     - name: run migrate
-      community.docker.docker_compose:
-        project_src: "{{ code_path }}"
-        action: exec
-        service: app
-        command: sh -c "alembic upgrade head"
+      shell: "docker compose exec app sh -c \"alembic upgrade head\""
+      args:
+        chdir: "{{ code_path }}"
 
-    - name: run prerun script
-      community.docker.docker_compose:
-        project_src: "{{ code_path }}"
-        action: exec
-        service: app
-        command: sh -c "python prerun.py"
+    - name: run migrate
+      shell: "docker compose exec app sh -c \"python prerun.py\""
+      args:
+        chdir: "{{ code_path }}"
