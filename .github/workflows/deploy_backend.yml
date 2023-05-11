@@ -79,4 +79,5 @@ jobs:
             -e DOCKER_REGISTRY=${{ env.REGISTRY_URL }}
             -e DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}
             -e DOCKER_USER=${{ secrets.DOCKERHUB_USERNAME }}
+            -e youtube_api_key=${{ secrets.YOUTUBE_API_KEY }}
 #

@@ -107,6 +107,10 @@ The hostname or IP address of the remote server to deploy the Docker image to.
 
 The SSH private key used to authenticate with the remote server.
 
+#### `YOUTUBE_API_KEY`
+
+The API key used to interact with Youtube API
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
