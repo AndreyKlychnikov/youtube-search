@@ -12,6 +12,7 @@ from youtube_transcript_api import (
 from app.services.youtube.entities import Subtitle, Video
 
 
+@retry((ValueError, MaxRetryError), delay=10, backoff=10, tries=2)
 def get_channel_id(link: str) -> str:
     response = requests.get(link)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -55,12 +56,25 @@ def get_channel_videos(
             )
             .execute()
         )
-        for item in playlist_items_response["items"]:
+        videos_response = (
+            youtube.videos()
+            .list(
+                part="snippet",
+                id=[
+                    video["snippet"]["resourceId"]["videoId"]
+                    for video in playlist_items_response["items"]
+                ],
+                maxResults=50,
+            )
+            .execute()
+        )
+        for video in videos_response["items"]:
             video = Video(
-                id=item["snippet"]["resourceId"]["videoId"],
+                id=video["id"],
                 channel_id=channel_id,
-                title=item["snippet"]["title"],
-                published_at=item["snippet"]["publishedAt"],
+                title=video["snippet"]["title"],
+                published_at=video["snippet"]["publishedAt"],
+                category_id=video["snippet"]["categoryId"],
             )
             videos.append(video)
         yield from videos

@@ -36,11 +36,15 @@ class SingletonMeta(type):
 
 class SearchService(ABC):
     @abstractmethod
-    async def search_within_subtitles(self, q, lang) -> list[dict]:
+    async def search_within_subtitles(
+        self, q, lang, youtube_categories: list[str] = None
+    ) -> list[dict]:
         ...
 
     @abstractmethod
-    async def save_subtitles(self, subtitles: list[SubtitleEntity], channel_id: str):
+    async def save_subtitles(
+        self, subtitles: list[SubtitleEntity], channel_id: str, category_id: str
+    ):
         ...
 
     async def close(self):
@@ -51,7 +55,7 @@ class SearchService(ABC):
             logging.debug("Skip video %s", video.id)
             return False
         subtitles = await self._get_video_subtitles(video.id)
-        await self.save_subtitles(subtitles, video.channel_id)
+        await self.save_subtitles(subtitles, video.channel_id, video.category_id)
         return True
 
     async def index_link(self, link):
@@ -69,7 +73,7 @@ class SearchService(ABC):
                 continue
             subtitles = await self._get_video_subtitles(video.id)
             try:
-                await self.save_subtitles(subtitles, channel_id)
+                await self.save_subtitles(subtitles, channel_id, video.category_id)
                 saved_videos.append(video)
             except Exception as e:
                 await self._mark_indexed(saved_videos)
@@ -77,8 +81,10 @@ class SearchService(ABC):
         logging.debug("Saving videos %d", len(saved_videos))
         await self._mark_indexed(saved_videos)
 
-    async def search(self, q: str, lang: str = "en"):
-        results = await self.search_within_subtitles(q, lang)
+    async def search(
+        self, q: str, lang: str = "en", youtube_categories: list[str] = None
+    ):
+        results = await self.search_within_subtitles(q, lang, youtube_categories)
         return [
             SearchResult(
                 **result,
