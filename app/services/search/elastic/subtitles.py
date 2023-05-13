@@ -39,11 +39,12 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
     async def close(self):
         await self.async_es.close()
 
-    @staticmethod
-    def _get_subtitles_index_name(lang: str):
-        return f"subtitles_{lang}"
+    def _get_subtitles_index_name(self, lang: str):
+        return f"subtitles_{self.lang_to_analyzer_mapping[lang]}"
 
-    async def save_subtitles(self, subtitles: list[SubtitleEntity], channel_id: str):
+    async def save_subtitles(
+        self, subtitles: list[SubtitleEntity], channel_id: str, category_id
+    ):
         docs = [
             {
                 "_index": self._get_subtitles_index_name(subtitle.language),
@@ -52,6 +53,7 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
                 "duration": subtitle.duration,
                 "text": subtitle.text,
                 "channel_id": channel_id,
+                "category_id": category_id,
             }
             for subtitle in subtitles
         ]
@@ -67,8 +69,23 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
             "duration": hit["_source"]["duration"],
         }
 
-    async def search_within_subtitles(self, q, lang) -> list[dict]:
-        query = {"query": {"match": {"text": {"query": q, "operator": "and"}}}}
+    async def search_within_subtitles(
+        self, q, lang, youtube_categories: list[str] = None
+    ) -> list[dict]:
+        match_stmt = {"match": {"text": {"query": q, "operator": "and"}}}
+        if not youtube_categories:
+            query = {"query": match_stmt}
+        else:
+            query = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            match_stmt,
+                            {"terms": {"category_id": youtube_categories}},
+                        ],
+                    }
+                }
+            }
         res = await self.async_es.search(
             index=self._get_subtitles_index_name(lang), body=query
         )
@@ -83,6 +100,7 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
                 "properties": {
                     "video_id": {"type": "keyword"},
                     "channel_id": {"type": "keyword"},
+                    "category_id": {"type": "keyword"},
                     "start_time": {"type": "float"},
                     "duration": {"type": "float"},
                     "text": {"type": "text", "analyzer": ""},
@@ -103,7 +121,6 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
 
     async def _check_indexed(self, video: Video) -> bool:
         async with SessionLocal() as db:
-            # db: AsyncSession
             result = await db.scalars(
                 select(VideoModel).where(VideoModel.id == video.id)
             )
@@ -118,6 +135,7 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
                         channel_id=video.channel_id,
                         title=video.title,
                         published_at=dateutil.parser.isoparse(video.published_at),
+                        category_id=video.category_id,
                     )
                     for video in videos
                 ]

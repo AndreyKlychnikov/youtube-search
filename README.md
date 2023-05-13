@@ -20,7 +20,7 @@ make compose
 
 For running app in development mode use:
 ```shell
-make run-local-services
+make run-services
 make run-local-app  # Run backend
 make run-local-celery  # Run celery
 ```
@@ -41,7 +41,7 @@ Makefile has four targets:
 
 - `install`: Installs project dependencies using Poetry.
 - `compose`: Starts Docker Compose in detached mode.
-- `run-local-services`: Starts services in docker container (Postgres, Redis, Elasticsearch, Kibana), applies database
+- `run-services`: Starts services in docker container (Postgres, Redis, Elasticsearch, Kibana), applies database
 migrations and creates elasticsearch indices. It also copies the `compose.env` file to `.env` for environment variable
 configuration.
 - `run-local-app`: Starts FastApi application

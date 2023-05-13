@@ -8,7 +8,7 @@ compose:
 
 run-services:
 	@docker-compose up -d db elasticsearch kibana redis
-	@cp compose.env .env
+	@touch.env
 	@poetry run alembic upgrade head
 	@poetry run python app/prerun.py
 
