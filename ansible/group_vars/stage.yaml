@@ -7,5 +7,5 @@ postgres_db: youtube
 #
 backend_cors_origins: "[\"http://localhost\", \"http://localhost:3000\", \"https://localhost:3000\", \"http://{{domain}}\", \"https://{{domain}}\"]"
 server_host: http://{{domain}}
-app_image_version:  0.1.0
+app_image_version:  0.1.1
 #
