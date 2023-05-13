@@ -1,3 +1,5 @@
+import re
+
 import requests
 from bs4 import BeautifulSoup
 from googleapiclient.discovery import build
@@ -12,11 +14,21 @@ from youtube_transcript_api import (
 from app.services.youtube.entities import Subtitle, Video
 
 
-@retry((ValueError, MaxRetryError), delay=10, backoff=10, tries=2)
 def get_channel_id(link: str) -> str:
+    match = re.search(r"youtube\.com/channel/([\w-]+)", link)
+    if match:
+        channel_id = match.group(1)
+        return channel_id
+
+    match = re.search(r"youtube\.com/@([\w-]+)", link)
+    if not match:
+        raise ValueError
+
     response = requests.get(link)
     soup = BeautifulSoup(response.content, "html.parser")
-    meta = soup.find("meta", itemprop="channelId")
+    meta = soup.find("meta", itemprop="identifier")
+    if not meta:
+        meta = soup.find("meta", itemprop="channelId")
     if not meta:
         raise ValueError
     return meta["content"]

@@ -3,15 +3,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 
-import requests
-from bs4 import BeautifulSoup
-
 from app.core.config import settings
 from app.schemas.search_result import SearchResult
 from app.services.youtube.entities import Subtitle
 from app.services.youtube.entities import Subtitle as SubtitleEntity
 from app.services.youtube.entities import Video
-from app.services.youtube.videos import get_channel_videos, get_link_to_video
+from app.services.youtube.videos import (
+    get_channel_id,
+    get_channel_videos,
+    get_link_to_video,
+)
 
 
 class LinkType(Enum):
@@ -103,12 +104,7 @@ class SearchService(ABC):
 
     @staticmethod
     def get_channel_id(link: str) -> str:  # TODO: make async
-        response = requests.get(link)
-        soup = BeautifulSoup(response.content, "html.parser")
-        meta = soup.find("meta", itemprop="channelId")
-        if not meta:
-            raise ValueError
-        return meta["content"]
+        return get_channel_id(link)
 
     @abstractmethod
     async def _check_indexed(self, video: Video) -> bool:
