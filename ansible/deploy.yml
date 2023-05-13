@@ -14,7 +14,7 @@
     - include: "tasks/compose.yml"
 
     - name: run app
-      shell: "docker compose start db redis elasticsearch kibana"
+      shell: "docker compose up -d db redis elasticsearch kibana"
       args:
         chdir: "{{ code_path }}"
 
