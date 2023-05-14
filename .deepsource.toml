@@ -1,5 +1,10 @@
 version = 1
 
+test_patterns = [
+  "tests/**",
+  "*_tests.py"
+]
+
 [[analyzers]]
 name = "secrets"
 

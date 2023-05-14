@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 
 from app.core.config import settings
+from app.models.base import Subtitle
 from app.schemas.search_result import SearchResult
-from app.services.youtube.entities import Subtitle
 from app.services.youtube.entities import Subtitle as SubtitleEntity
 from app.services.youtube.entities import Video
 from app.services.youtube.videos import (

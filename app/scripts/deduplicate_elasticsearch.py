@@ -46,7 +46,7 @@ def scroll_over_all_docs(es, index_name: str, keys_to_include_in_hash: list[str]
     dict_of_duplicate_docs = {}
     count = 0
     for hit in helpers.scan(es, index=index_name):
-        combined_key = tuple([hit["_source"][key] for key in keys_to_include_in_hash])
+        combined_key = tuple(hit["_source"][key] for key in keys_to_include_in_hash)
         dict_of_duplicate_docs.setdefault(combined_key, []).append(hit["_id"])
         count += 1
     return dict_of_duplicate_docs, count

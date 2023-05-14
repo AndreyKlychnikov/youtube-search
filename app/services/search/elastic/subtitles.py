@@ -10,11 +10,10 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.db.session import SessionManager
-from app.models.base import Video as VideoModel
+from app.models.base import Subtitle, Video
 from app.services.search.base import SearchService, SingletonMeta
-from app.services.youtube.entities import Subtitle
 from app.services.youtube.entities import Subtitle as SubtitleEntity
-from app.services.youtube.entities import Video
+from app.services.youtube.entities import Video as VideoEntity
 from app.services.youtube.videos import get_video_subtitles
 
 
@@ -117,20 +116,18 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
                     index=index_name, body=index_settings
                 )
             else:
-                logging.info(f"The index {index_name} already exists.")
+                logging.info("The index %s already exists.", index_name)
 
-    async def _check_indexed(self, video: Video) -> bool:
+    async def _check_indexed(self, video: VideoEntity) -> bool:
         async with SessionManager() as db:
-            result = await db.scalars(
-                select(VideoModel).where(VideoModel.id == video.id)
-            )
+            result = await db.scalars(select(Video).where(Video.id == video.id))
             return result.first()
 
-    async def _mark_indexed(self, videos: list[Video]):
+    async def _mark_indexed(self, videos: list[VideoEntity]):
         async with SessionManager() as db:
             db.add_all(
                 [
-                    VideoModel(
+                    Video(
                         id=video.id,
                         channel_id=video.channel_id,
                         title=video.title,
