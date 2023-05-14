@@ -14,5 +14,7 @@ def example_async_task():
 @shared_task
 def index_channels_task(channels_urls: list[str]):
     container = get_container()
-    asyncio.run(container.search_service.index_link(channels_urls[0]))
+    asyncio.get_event_loop().run_until_complete(
+        container.search_service.index_link(channels_urls[0])
+    )
     return "ok"
