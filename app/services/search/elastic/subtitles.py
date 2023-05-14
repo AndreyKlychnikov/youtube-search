@@ -9,7 +9,7 @@ from elasticsearch.helpers import async_bulk
 from sqlalchemy import select
 
 from app.core.config import settings
-from app.db.session import SessionLocal
+from app.db.session import SessionManager
 from app.models.base import Video as VideoModel
 from app.services.search.base import SearchService, SingletonMeta
 from app.services.youtube.entities import Subtitle
@@ -120,14 +120,14 @@ class ElasticSearchService(SearchService, metaclass=ElasticSearchMeta):
                 logging.info(f"The index {index_name} already exists.")
 
     async def _check_indexed(self, video: Video) -> bool:
-        async with SessionLocal() as db:
+        async with SessionManager() as db:
             result = await db.scalars(
                 select(VideoModel).where(VideoModel.id == video.id)
             )
             return result.first()
 
     async def _mark_indexed(self, videos: list[Video]):
-        async with SessionLocal() as db:
+        async with SessionManager() as db:
             db.add_all(
                 [
                     VideoModel(
