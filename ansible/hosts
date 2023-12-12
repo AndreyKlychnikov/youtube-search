@@ -1,5 +1,5 @@
 [stage]
-stage1 ansible_host=89.223.69.29 ansible_user=andrew ansible_python_interpreter=/usr/bin/python3
+stage1 ansible_host=217.18.63.160 ansible_user=user ansible_python_interpreter=/usr/bin/python3
 
 [prod]
-prod1 ansible_host=89.223.69.29 ansible_user=andrew ansible_python_interpreter=/usr/bin/python3
+prod1 ansible_host=217.18.63.160 ansible_user=user ansible_python_interpreter=/usr/bin/python3
