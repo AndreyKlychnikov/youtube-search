@@ -1,7 +1,7 @@
 - hosts: "stage"
   gather_facts: no
   tasks:
-    - include: "tasks/docker_login.yml"
+    - include_tasks: "tasks/docker_login.yml"
 
     - name: create target directory
       file:
@@ -11,7 +11,7 @@
         group: "{{ ansible_user }}"
         mode: 0755
 
-    - include: "tasks/compose.yml"
+    - include_tasks: "tasks/compose.yml"
 
     - name: run services
       shell: "docker compose up -d db redis elasticsearch"
