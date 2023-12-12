@@ -2,7 +2,8 @@ import secrets
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import AnyHttpUrl, PostgresDsn, validator
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -35,10 +36,10 @@ class Settings(BaseSettings):
             return v
         return PostgresDsn.build(
             scheme="postgresql+asyncpg",
-            user=values.get("POSTGRES_USER"),
+            username=values.get("POSTGRES_USER"),
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
+            path=values.get('POSTGRES_DB') or '',
         )
 
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
@@ -46,12 +47,14 @@ class Settings(BaseSettings):
 
     ELASTICSEARCH_HOST: str
 
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
     YOUTUBE_API_KEY: str
 
     class Config:
         case_sensitive = True
+        env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()
